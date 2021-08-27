@@ -1,4 +1,4 @@
-// const chalk = require("chalk");
+const chalk = require("chalk");
 const { v4: uuidv4 } = require("uuid");
 const moment = require("moment");
 const _ = require("lodash");
@@ -12,11 +12,22 @@ http
     axios
       .get("https://randomuser.me/api/?results=10")
       .then((response) => {
-        const { first, last } = response.data.results[0].name;
-        const id = uuidv4().slice(0, 6);
-        const tiempo = moment().format("MMMM Do YYYY, h:mm:ss a");
-        res.write(`Nombre: ${first} - Apellido: ${last} - ID: ${id} - Timestamp: ${tiempo}`);
-        console.log(moment().format());
+        _.each(response.data.results, function (value, i) {
+          console.log(value.name);
+        });
+
+        _.each(response.data.results, function (value, i) {
+          const { first: nombre, last: apellido } = value.name;
+          const id = uuidv4().slice(0, 6);
+          const tiempo = moment().format("MMMM Do YYYY, h:mm:ss a");
+          const datoUsuario = `${i + 1}.- Nombre: ${nombre} - Apellido: ${apellido} - ID: ${id} - Timestamp: ${tiempo}\n`;
+          //console.log(chalk.bgWhite.blue.bold(datoUsuario));
+          res.write(datoUsuario);
+          fs.appendFile("./registro.txt", datoUsuario, { encoding: "utf8", flag: "a" }, (error) => {
+            if (error) throw error;
+          });
+        });
+
         res.end();
       })
       .catch((e) => {
